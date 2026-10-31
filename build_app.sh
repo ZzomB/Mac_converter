@@ -18,8 +18,21 @@ mkdir -p "${RESOURCES_DIR}"
 
 cp "${BUILD_BIN}" "${MACOS_DIR}/${BIN_NAME}"
 cp "Info.plist" "${CONTENTS_DIR}/Info.plist"
+if [ -f "AppIcon.icns" ]; then
+    cp "AppIcon.icns" "${RESOURCES_DIR}/AppIcon.icns"
+fi
 
 # Ad-hoc code signing for local execution
 codesign --force --deep --sign - "${APP_NAME}"
+touch "${APP_NAME}"
+
+# Copy to /Applications so it is immediately available in Applications & Launchpad
+if [ -w "/Applications" ]; then
+    echo "🚀 Installing ${APP_NAME} to /Applications..."
+    rm -rf "/Applications/${APP_NAME}"
+    cp -R "${APP_NAME}" "/Applications/${APP_NAME}"
+    touch "/Applications/${APP_NAME}"
+    echo "✅ Installed to /Applications/${APP_NAME}"
+fi
 
 echo "✅ Build and packaging complete: ${APP_NAME}"
